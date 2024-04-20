@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+}
+
+body {
+  background: black;
+}
+
+.my-color {
+  color: #faa356;
+}
+
+.p-color {
+  color: #77bdfb;
+}
+
+.linkLogo {
+  font-size: 30px;
+  color: black;
+  font-weight: bold;
+}
+
+.bg-neu {
+  background-color: #161b22;
+}
+
+.neu,
+.neu-inset,
+.neu-btn:hover,
+.neu-input,
+.neu-input:focus {
+  background-color: #161b22;
+}
+
+.neu,
+.neu-input {
+  box-shadow: 5px 5px 5px 0px #0d1117;
+}
+
+.neu-inset {
+  color: #faa356;
+}
+
+.neu-input {
+  color: #77bdfb;
+}
+
+.neu-inset,
+.neu-input {
+  background-color: #0d1117;
+  box-shadow: 5px 5px 5px 0px #161b22;
+  border: 0.1px solid black;
+}
+
+.neu-btn:hover {
+  color: #faa356;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px 0px #161b22;
+  border: 0.1px solid black;
+}
+
+.neu-input:focus {
+  box-shadow: 5px 5px 5px 0px #0d1117;
+  color: #77bdfb;
+}
+
+.code {
+  background-color: white;
+  border: 1px solid #7ce38b;
+  padding: 10px;
+  font-family: monospace;
+  overflow-x: auto;
+  color: rgb(12, 12, 12);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.neuhover:hover,
+.n-active {
+  color: #faa356;
+  background-color: #0d1117;
+  box-shadow: 5px 5px 5px 0px #161b22;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.rmv-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.rmv-scroll {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.msg-shadow {
+  box-shadow: inset 0px -16px 15px -3px rgba(0, 0, 0, 0.1);
+}
