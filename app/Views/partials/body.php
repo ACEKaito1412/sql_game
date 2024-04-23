@@ -26,6 +26,39 @@
             /* End at the bottom of the container */
         }
     }
+
+    @keyframes blink {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .blinking {
+        animation: blink 1s infinite;
+    }
+
+    .correctText {
+        color: green;
+        font-weight: bolder;
+    }
+
+    .wrongText {
+        color: orangered;
+        font-weight: bolder;
+    }
+
+    #placeholder * {
+        margin: 0;
+        padding: 0;
+    }
 </style>
 <div class="container">
     <div class="row d-flex flex-lg-row flex-column align-items-center justify-content-center w-100 mx-auto py-5">
@@ -59,11 +92,11 @@
                         <p>Score <span id="score">0</span></p>
                         <span id="timer">0</span>
                     </div>
-                    <div class="bg-dark p-2 d-flex flex-column justify-content-center" id="placeholder" style="height: 65%;"></div>
+                    <div class="bg-dark p-2 d-flex flex-wrap align-items-center" id="placeholder" style="height: 65%;">
+                    </div>
                     <div class="row  py-3">
-                        <div class="input-group mb-3" id="input_group">
-                            <input type="text" class="form-control neu-inset" placeholder="Type Here" aria-label="" onchange="checkInput(event)" aria-describedby="button-addon2">
-                            <button class="btn neu neu-inset" type="button" id="button-addon2">Next</button>
+                        <div class="input-group neu neu-inset p-3" style="caret-color: transparent; font-size: 20px;" id="input_group" contenteditable="true">
+                            <div id="carret" class="blinking" style="width:1px; height:20px; background-color: white;" contenteditable="false"></div>
                         </div>
                     </div>
                 </div>
@@ -163,6 +196,51 @@
         }
     }
 
+    const inputGroup = document.querySelector('#input_group');
+    const placeholder = document.querySelector('#placeholder');
+
+    inputGroup.addEventListener('keydown', function(event) {
+        event.preventDefault();
+        var key = event.key;
+
+        const validChars = /^[a-zA-Z0-9!@#$%^&*()-=_+[\]{}|;:'",.<>/?\\ ]+$/;
+        var carret = document.querySelector('#carret');
+        var currCountInputGroup = inputGroup.childElementCount - 1;
+        var currCountPlaceholder = placeholder.childElementCount;
+
+        if (key === "Backspace") {
+            //get the current last element in the inputgroup and the current span placeholder
+            var prevElement = carret.previousElementSibling;
+            var spanPlaceholder = placeholder.children[currCountInputGroup];
+
+            spanPlaceholder.classList.remove('correctText');
+            inputGroup.removeChild(prevElement);
+
+        }
+
+        if (validChars.test(key) && key.length == 1) {
+            //create an span element
+            var spanElement = document.createElement('span');
+            spanElement.innerHTML = key === ' ' ? '&nbsp' : key;
+
+            //check the size of the inputgroup
+            if (currCountInputGroup - 1 < currCountPlaceholder) {
+                var spanPlaceholder = placeholder.children[currCountInputGroup];
+                //check the element if its the same 
+                if (spanPlaceholder.innerText == spanElement.innerText) {
+                    spanElement.className = 'correctText';
+                    spanPlaceholder.className = 'correctText';
+                } else {
+                    spanElement.className = 'wrongText';
+                    spanPlaceholder.className = 'wrongText';
+                }
+            }
+
+            inputGroup.insertBefore(spanElement, carret);
+        }
+
+    })
+
     function gameStart() {
         timeLeft += 10;
         var placeholder = document.getElementById('placeholder');
@@ -193,12 +271,15 @@
         add_time = obj['time'];
         add_score = obj['points'];
 
-        var textElement = document.createElement('h3');
-        textElement.innerText = text;
-        textElement.className = "my-color m-0 p-0";
-        placeholder.insertBefore(textElement, placeholder.firstChild)
+        for (var i = 0; i < text.length; i++) {
+            var textElement = document.createElement('h3');
+            textElement.innerHTML = text[i] === ' ' ? '&nbsp' : text[i];
+            textElement.className = "wrongText";
+            placeholder.appendChild(textElement);
+        }
     }
 
+    //remove all element on the placeholder
     function removeElement(placeholder) {
         while (placeholder.firstChild) {
             placeholder.removeChild(placeholder.firstChild);
