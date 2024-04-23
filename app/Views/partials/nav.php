@@ -6,7 +6,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
                     <li class="nav-item">
                         <a class="active text-decoration-none p-color neuhover p-2 rounded" target="_blank" href="https://acekaito1412.rf.gd">My Portfolio</a>
                     </li>

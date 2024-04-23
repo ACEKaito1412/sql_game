@@ -1,19 +1,48 @@
+<?php
+
+?>
+
+<style>
+    .falling-text {
+        position: absolute;
+        font-size: 14px;
+        top: 80px;
+        animation: fall 7s linear infinite;
+        /* Fall animation for 5 seconds */
+    }
+
+    .text-color {
+        text-shadow: -1px 3px 2px rgba(117, 223, 163, 1);
+    }
+
+    @keyframes fall {
+        from {
+            top: -80px;
+            /* Start above the container */
+        }
+
+        to {
+            top: 90vh;
+            /* End at the bottom of the container */
+        }
+    }
+</style>
 <div class="container">
     <div class="row d-flex flex-lg-row flex-column align-items-center justify-content-center w-100 mx-auto py-5">
-        <div class=" position-relative d-flex justify-content-between bg-danger " style="width:600px; height: 500px;">
-            <div class="position-absolute d-flex justify-content-center top-50 start-50 translate-middle h-100 w-100" style="background-color: rgba(1,1,1,1);">
-                <div class="d-flex flex-column align-items-center justify-content-center w-100 " style="display: none;">
-                    <button class="btn neu neu-btn p-color w-50 m-2">Play As Guest</button>
-                    <button class="btn neu neu-btn p-color w-50 m-2">Use a Username</button>
-                    <button class="btn neu neu-btn p-color w-50 m-2">Register</button>
+        <div class="position-relative d-flex justify-content-between border border-dark rounded mx-3" style="width:610px; height: 290px;">
+            <div class="position-absolute d-flex justify-content-center top-50 start-50 translate-middle h-100 w-100" id="start-container" style="background-color: rgba(1,1,1,.5); z-index: 1;">
+                <div class="d-flex flex-column align-items-center justify-content-center w-100 " style="display: none;" id="main">
+                    <button onclick="play('guest')" class="btn neu neu-btn p-color w-50 m-2">Play As Guest</button>
+                    <button onclick="play('user')" class="btn neu neu-btn p-color w-50 m-2">Use a Username</button>
+                    <button onclick="play('new-user')" class="btn neu neu-btn p-color w-50 m-2">Register</button>
                 </div>
-                <div class=" flex-column align-items-center justify-content-center w-100" style="display: none;">
+                <div class="flex-column align-items-center justify-content-center w-100" style="display: none;" id="login">
                     <h2>Login</h2>
                     <input type="text" class="form-control m-2 neu-inset w-50" placeholder="User-name">
                     <input type="password" class="form-control m-2 neu-inset w-50" placeholder="Password">
                     <button class="btn neu neu-btn p-color m-2  ">Play the game</button>
                 </div>
-                <div class=" flex-column align-items-center justify-content-center w-100" style="display: none;">
+                <div class="flex-column align-items-center justify-content-center w-100" style="display: none;" id="register">
                     <h2>Register</h2>
                     <input type="text" class="form-control m-2 neu-inset w-50" placeholder="User-name">
                     <input type="password" class="form-control m-2 neu-inset w-50" placeholder="Password">
@@ -21,14 +50,21 @@
                     <button class="btn neu neu-btn p-color m-2  ">Play the game</button>
                 </div>
             </div>
-            <div class="border" style="width: 600px; height: 500px;">
-                <div class="bg-primary" style="height: 85%;">
+            <div class="" style="width: 600px; height: 290px;">
+                <div class="position-relative overflow-y-hidden d-flex flex-column justify-content-center" id="placeholder_falling" style="height: 100%; z-index: 0;">
 
                 </div>
-                <div class="mt-3 row">
-                    <div class="input-group mb-3" id="input_group" style="display: none;">
-                        <input type="text" class="form-control neu-inset" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
-                        <button class="btn neu neu-inset" type="button" id="button-addon2">Next</button>
+                <div class="position-relative flex-column justify-content-end" id="placeholder_input" style="height: 100%; z-index: 0; display: none;">
+                    <div class="d-flex flex-row justify-content-between">
+                        <p>Score <span id="score">0</span></p>
+                        <span id="timer">0</span>
+                    </div>
+                    <div class="bg-dark p-2 d-flex flex-column justify-content-center" id="placeholder" style="height: 65%;"></div>
+                    <div class="row  py-3">
+                        <div class="input-group mb-3" id="input_group">
+                            <input type="text" class="form-control neu-inset" placeholder="Type Here" aria-label="" onchange="checkInput(event)" aria-describedby="button-addon2">
+                            <button class="btn neu neu-inset" type="button" id="button-addon2">Next</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -50,13 +86,143 @@
     </div>
 </div>
 <script>
-    let gameStart = false;
-    var input_group = document.querySelector('#input_group');
-    if (!gameStart) {
-        input_group.style.display = 'none';
-    } else {
-        input_group.style.display = 'block';
+    var textArray = [
+        "SELECT * FROM users WHERE user_id = 3;",
+        "SELECT username, email FROM users WHERE username LIKE 'J%';",
+        "SELECT COUNT(*) FROM messages;",
+        "SELECT * FROM messages ORDER BY timestamp DESC LIMIT 5;",
+        "INSERT INTO users (username, email) VALUES ('NewUser6', 'newuser6@example.com');",
+        "UPDATE users SET email = 'updatedemail3@example.com' WHERE user_id = 1;",
+        "DELETE FROM users WHERE email = 'newuser6@example.com';"
+    ];
+
+    var xhr = new XMLHttpRequest();
+    var data;
+    xhr.open('GET', "<?= site_url('/access') ?>"), true;
+    xhr.onload = function() {
+        if (xhr.status == 200) {
+            data = JSON.parse(xhr.responseText.trim());
+        }
     }
+    xhr.send();
+
+
+    function play(type) {
+        var main = document.querySelector('#main');
+        var login = document.querySelector('#login');
+        var register = document.querySelector('#register');
+        var input_group = document.querySelector('#input_group');
+        var start_container = document.querySelector('#start-container');
+        var placeholder_fall = document.querySelector('#placeholder_falling');
+        var placeholder_input = document.querySelector('#placeholder_input');
+
+        switch (type) {
+            case 'guest':
+                input_group.style.display = 'flex';
+                placeholder.style.zIndex = '1';
+                start_container.style.zIndex = '0';
+                placeholder_fall.style.display = 'none';
+                placeholder_fall.classList.remove('d-flex');
+                placeholder_input.style.display = 'block';
+                main.classList.remove('d-flex');
+
+                placeholder
+                gameStart();
+                break;
+            case 'user':
+                break;
+            case 'new-user':
+                break;
+            default:
+                break;
+        }
+    }
+
+    let timeLeft = 0;
+    let add_score = 0;
+    let current_points = 0;
+    let interval;
+
+    function checkInput(ev) {
+        var placeholder = document.querySelector('#placeholder');
+        var last_element = placeholder.lastChild;
+        var score = document.getElementById('score');
+        var target = ev.target;
+
+        if (last_element.textContent == target.value) {
+            placeholder.removeChild(last_element);
+            current_points = current_points + add_score;
+            console.log('hello');
+            score.innerText = current_points;
+            timeleft = timeLeft + 30;
+
+            createTextElement();
+            target.value = '';
+        } else {
+            console.log('not yet ' + last_element.textContent + ' ' + target.value)
+        }
+    }
+
+    function gameStart() {
+        timeLeft += 10;
+        var placeholder = document.getElementById('placeholder');
+        removeElement(placeholder);
+        createTextElement();
+        interval = setInterval(function() {
+            time(timeLeft);
+            timeLeft--;
+
+            if (timeLeft == -1) {
+                // If the timer has reached 0, clear the interval to stop the timer
+                clearInterval(interval);
+            }
+        }, 1000)
+    }
+
+    function time(curTime) {
+        var timer = document.querySelector('#timer');
+        timer.innerHTML = curTime;
+    }
+
+
+    function createTextElement() {
+        var placeholder = document.querySelector('#placeholder');
+
+        var obj = data['queries'][Math.floor(Math.random() * data['queries'].length)];
+        var text = obj['query'];
+        add_time = obj['time'];
+        add_score = obj['points'];
+
+        var textElement = document.createElement('h3');
+        textElement.innerText = text;
+        textElement.className = "my-color m-0 p-0";
+        placeholder.insertBefore(textElement, placeholder.firstChild)
+    }
+
+    function removeElement(placeholder) {
+        while (placeholder.firstChild) {
+            placeholder.removeChild(placeholder.firstChild);
+        }
+    }
+
+    function animateFall() {
+        var placeholder = document.getElementById('placeholder_falling');
+
+        textArray.forEach((text, index) => {
+            var textElement = document.createElement('div');
+            textElement.className = 'falling-text my-color';
+            textElement.textContent = text;
+
+            textElement.style.left = Math.random() * 60 + "%";
+            textElement.style.top = "-80px";
+
+            textElement.style.animationDelay = `${index * 1}s`;
+
+            placeholder.appendChild(textElement);
+        });
+    }
+
+    animateFall();
 </script>
 <?php
 echo view('partials/num_of_user')
