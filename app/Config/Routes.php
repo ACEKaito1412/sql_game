@@ -7,3 +7,4 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 $routes->get('access', 'Home::access_data');
+$routes->get('test', 'Home::test');

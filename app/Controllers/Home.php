@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use PDO;
 use Throwable;
 
 class Home extends BaseController
@@ -18,5 +19,10 @@ class Home extends BaseController
     {
         $json_data = file_get_contents(base_url() . 'public/data.json');
         return $this->response->setStatusCode(200)->setJSON($json_data);
+    }
+
+    public function test()
+    {
+        return view('pages/test');
     }
 }
