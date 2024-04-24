@@ -55,19 +55,24 @@
         font-weight: bolder;
     }
 
+    .inputcolor {
+        color: #faa356;
+        font-weight: bolder;
+    }
+
     #placeholder * {
         margin: 0;
         padding: 0;
     }
 </style>
-<div class="container">
-    <div class="row d-flex flex-lg-row flex-column align-items-center justify-content-center w-100 mx-auto py-5">
-        <div class="position-relative d-flex justify-content-between border border-dark rounded mx-3" style="width:610px; height: 290px;">
+<div class="container d-flex flex-lg-row flex-column">
+    <div class="row d-flex flex-lg-row flex-column align-items-center justify-content-center w-100 w-lg-50 mx-auto py-5">
+        <div class="position-relative d-flex justify-content-between border border-dark rounded mb-3" style="width:610px; height: 300px;">
             <div class="position-absolute d-flex justify-content-center top-50 start-50 translate-middle h-100 w-100" id="start-container" style="background-color: rgba(1,1,1,.5); z-index: 1;">
                 <div class="d-flex flex-column align-items-center justify-content-center w-100 " style="display: none;" id="main">
                     <button onclick="play('guest')" class="btn neu neu-btn p-color w-50 m-2">Play As Guest</button>
-                    <button onclick="play('user')" class="btn neu neu-btn p-color w-50 m-2">Use a Username</button>
-                    <button onclick="play('new-user')" class="btn neu neu-btn p-color w-50 m-2">Register</button>
+                    <button onclick="play('user')" class="btn neu neu-btn p-color w-50 m-2" disabled>Use a Username</button>
+                    <button onclick="play('new-user')" class="btn neu neu-btn p-color w-50 m-2" disabled>Register</button>
                 </div>
                 <div class="flex-column align-items-center justify-content-center w-100" style="display: none;" id="login">
                     <h2>Login</h2>
@@ -96,25 +101,30 @@
                     </div>
                     <div class="row  py-3">
                         <div class="input-group neu neu-inset p-3" style="caret-color: transparent; font-size: 20px;" id="input_group" contenteditable="true">
-                            <div id="carret" class="blinking" style="width:1px; height:20px; background-color: white;" contenteditable="false"></div>
+                            <div id="carret" class="blinking" style="width:1px; height:25px; background-color: white;" contenteditable="false"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 neu  mt-3 " style="height: 500px;">
-            <h3 class="m-2 fw-bold my-color text-center">Leaderboard</h1>
-                <div class="col overflow-y-scroll rmv-scroll" style="height: 430px;">
-                    <?php for ($i = 1; $i < 20; $i++) : ?>
-                        <div class="d-flex flex-row justify-content-between px-3 py-2 p-color neu m-2 rounded border border-dark">
-                            <div class="d-flex flex-row">
-                                <p class="my-0 mx-2"><?= $i ?></p>
-                                <p class="fs-6 fw-semi-bold m-0">Juan Dela Cruz</p>
-                            </div>
-                            <p class="m-0"><?= 2000 - $i ?></p>
-                        </div>
-                    <?php endfor ?>
-                </div>
+        <?php
+        echo view('partials/num_of_user')
+        ?>
+    </div>
+    <div class="d-flex flex-row align-items-start justify-content-start mx-auto w-100 w-lg-50 py-5">
+        <div class="mx-3 p-3 neu neu-inset">
+            <h1 class="my-color">SQL GAME</h1>
+            <div class="p-color" style="font-size: 19px;">
+                <p>
+                    SQL Game is a unique twist on the classic typing game genre, focusing specifically on SQL queries. Whether you're a seasoned database developer or just dipping your toes into the world of SQL, this game offers a fun and interactive way to practice your skills.
+                </p>
+                <p>
+                    Created with the intention of helping players remember and master SQL queries, SQL Game provides a dynamic and engaging platform where you can test your knowledge, compete with friends, and track your progress over time. So why wait? Dive into the world of SQL gaming and level up your database skills today!
+                </p>
+                <p>
+                    Designed with both learning and enjoyment in mind, SQL Game challenges players to type out SQL queries ranging from simple CRUD operations to more complex database manipulations. By immersing yourself in this virtual SQL environment, you can sharpen your query-writing abilities and reinforce your understanding of key database concepts.
+                </p>
+            </div>
         </div>
     </div>
 </div>
@@ -140,61 +150,31 @@
     xhr.send();
 
 
-    function play(type) {
-        var main = document.querySelector('#main');
-        var login = document.querySelector('#login');
-        var register = document.querySelector('#register');
-        var input_group = document.querySelector('#input_group');
-        var start_container = document.querySelector('#start-container');
-        var placeholder_fall = document.querySelector('#placeholder_falling');
-        var placeholder_input = document.querySelector('#placeholder_input');
+    function saveGuest(time, points) {
+        console.log('hello');
+        var formdata = new FormData();
+        formdata.append('score', points);
+        formdata.append('time', time);
 
-        switch (type) {
-            case 'guest':
-                input_group.style.display = 'flex';
-                placeholder.style.zIndex = '1';
-                start_container.style.zIndex = '0';
-                placeholder_fall.style.display = 'none';
-                placeholder_fall.classList.remove('d-flex');
-                placeholder_input.style.display = 'block';
-                main.classList.remove('d-flex');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', "<?= site_url() . "save-guest" ?>", true);
 
-                placeholder
-                gameStart();
-                break;
-            case 'user':
-                break;
-            case 'new-user':
-                break;
-            default:
-                break;
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                console.log(response.messages);
+            }
         }
+
+        xhr.send(formdata);
     }
 
     let timeLeft = 0;
     let add_score = 0;
     let current_points = 0;
     let interval;
-
-    function checkInput(ev) {
-        var placeholder = document.querySelector('#placeholder');
-        var last_element = placeholder.lastChild;
-        var score = document.getElementById('score');
-        var target = ev.target;
-
-        if (last_element.textContent == target.value) {
-            placeholder.removeChild(last_element);
-            current_points = current_points + add_score;
-            console.log('hello');
-            score.innerText = current_points;
-            timeleft = timeLeft + 30;
-
-            createTextElement();
-            target.value = '';
-        } else {
-            console.log('not yet ' + last_element.textContent + ' ' + target.value)
-        }
-    }
+    let query = "";
+    let inputValue = "";
 
     const inputGroup = document.querySelector('#input_group');
     const placeholder = document.querySelector('#placeholder');
@@ -206,26 +186,38 @@
         const validChars = /^[a-zA-Z0-9!@#$%^&*()-=_+[\]{}|;:'",.<>/?\\ ]+$/;
         var carret = document.querySelector('#carret');
         var currCountInputGroup = inputGroup.childElementCount - 1;
-        var currCountPlaceholder = placeholder.childElementCount;
+        var currCountPlaceholder = placeholder.childElementCount - 1;
 
         if (key === "Backspace") {
             //get the current last element in the inputgroup and the current span placeholder
             var prevElement = carret.previousElementSibling;
-            var spanPlaceholder = placeholder.children[currCountInputGroup];
+            var spanPlaceholder = placeholder.children[currCountInputGroup - 1];
 
+            //change the color of placeholder
             spanPlaceholder.classList.remove('correctText');
-            inputGroup.removeChild(prevElement);
+            spanPlaceholder.classList.add('wrongText');
 
+            //remove from reference varaiable and also in  input field
+            inputValue = inputValue.slice(0, -1);
+            inputGroup.removeChild(prevElement);
+        }
+
+        if (key === 'Enter') {
+            checkInput();
         }
 
         if (validChars.test(key) && key.length == 1) {
-            //create an span element
-            var spanElement = document.createElement('span');
-            spanElement.innerHTML = key === ' ' ? '&nbsp' : key;
-
             //check the size of the inputgroup
             if (currCountInputGroup - 1 < currCountPlaceholder) {
                 var spanPlaceholder = placeholder.children[currCountInputGroup];
+
+                //create an span element
+                var spanElement = document.createElement('span');
+                spanElement.innerHTML = key === ' ' ? '&nbsp' : key;
+
+                //store inputed data for reference
+                inputValue += key;
+
                 //check the element if its the same 
                 if (spanPlaceholder.innerText == spanElement.innerText) {
                     spanElement.className = 'correctText';
@@ -234,55 +226,113 @@
                     spanElement.className = 'wrongText';
                     spanPlaceholder.className = 'wrongText';
                 }
+                inputGroup.insertBefore(spanElement, carret);
             }
-
-            inputGroup.insertBefore(spanElement, carret);
         }
+
 
     })
 
+    function play(type) {
+        var main = document.querySelector('#main');
+        var login = document.querySelector('#login');
+        var register = document.querySelector('#register');
+        var input_group = document.querySelector('#input_group');
+        var start_container = document.querySelector('#start-container');
+        var placeholder_fall = document.querySelector('#placeholder_falling');
+        var placeholder_input = document.querySelector('#placeholder_input');
+
+        //variables
+        timeLeft += 30;
+        add_score = 0;
+        current_points = 0;
+        query = "";
+        inputValue = "";
+
+        switch (type) {
+            case 'guest':
+                input_group.style.display = 'flex';
+                placeholder.style.zIndex = '1';
+                start_container.style.zIndex = '0';
+                placeholder_fall.style.display = 'none';
+                placeholder_fall.classList.remove('d-flex');
+                placeholder_input.style.display = 'block';
+                main.classList.remove('d-flex');
+                inputGroup.focus();
+                gameStart();
+                break;
+            case 'user':
+                break;
+            case 'new-user':
+                break;
+            case 'end':
+                input_group.style.display = 'none';
+                placeholder.style.zIndex = '0';
+                start_container.style.zIndex = '1';
+                placeholder_fall.style.display = 'block';
+                placeholder_fall.classList.add('d-flex');
+                placeholder_input.style.display = 'none';
+                main.classList.add('d-flex');
+                removeElement(inputGroup, inputGroup.childElementCount - 2);
+                removeElement(placeholder, placeholder.childElementCount - 1);
+
+                saveGuest(100, 10);
+                break;
+        }
+    }
+
     function gameStart() {
-        timeLeft += 10;
-        var placeholder = document.getElementById('placeholder');
-        removeElement(placeholder);
         createTextElement();
         interval = setInterval(function() {
-            time(timeLeft);
+
+            var timer = document.querySelector('#timer');
+            timer.innerHTML = timeLeft;
+
             timeLeft--;
 
             if (timeLeft == -1) {
                 // If the timer has reached 0, clear the interval to stop the timer
                 clearInterval(interval);
+                play('end');
             }
-        }, 1000)
+        }, 1000);
     }
-
-    function time(curTime) {
-        var timer = document.querySelector('#timer');
-        timer.innerHTML = curTime;
-    }
-
 
     function createTextElement() {
         var placeholder = document.querySelector('#placeholder');
 
         var obj = data['queries'][Math.floor(Math.random() * data['queries'].length)];
         var text = obj['query'];
-        add_time = obj['time'];
-        add_score = obj['points'];
+        query = text;
+        add_score += obj['points'];
 
         for (var i = 0; i < text.length; i++) {
             var textElement = document.createElement('h3');
             textElement.innerHTML = text[i] === ' ' ? '&nbsp' : text[i];
-            textElement.className = "wrongText";
+            textElement.className = "inputcolor";
             placeholder.appendChild(textElement);
         }
     }
 
     //remove all element on the placeholder
-    function removeElement(placeholder) {
-        while (placeholder.firstChild) {
-            placeholder.removeChild(placeholder.firstChild);
+    function removeElement(container, start) {
+        for (var i = start; i >= 0; i--) {
+            container.removeChild(container.children[i]);
+        }
+    }
+
+    function checkInput() {
+        var score = document.getElementById('score');
+
+        if (query === inputValue) {
+            removeElement(inputGroup, inputGroup.childElementCount - 2);
+            removeElement(placeholder, placeholder.childElementCount - 1);
+            inputValue = "";
+            createTextElement();
+            timeLeft += 20;
+            console.log(timeLeft);
+            current_points = current_points + add_score;
+            score.innerHTML = current_points;
         }
     }
 
@@ -305,6 +355,49 @@
 
     animateFall();
 </script>
-<?php
-echo view('partials/num_of_user')
-?>
+
+<div class="container d-flex flex-row mb-4">
+    <div class="col mt-3 m-2 p-3">
+        <h3 class="m-3 p-4 fw-bold my-color text-center">GUEST PLAYER</h1>
+            <div class="col overflow-y-scroll rmv-scroll" style="height: 430px;">
+                <?php if (count($guest_data) > 0) : ?>
+                    <?php for ($i = 0; $i < count($guest_data); $i++) : ?>
+                        <div class="d-flex flex-row justify-content-between px-3 py-2 p-color neu m-2 rounded border border-dark">
+                            <div class="d-flex flex-row">
+                                <p class="fs-6 fw-semi-bold m-0">Guest <?= $i + 1 ?></p>
+                            </div>
+                            <p class="m-0"><?= $guest_data[$i]['score'] ?></p>
+                        </div>
+                    <?php endfor ?>
+                <?php else : ?>
+                    <div class="d-flex flex-row justify-content-between px-3 py-2 p-color neu m-2 rounded border border-dark">
+                        <div class="d-flex flex-row justify-content-center">
+                            <p class="fs-6 fw-semi-bold m-0">No data yet!!</p>
+                        </div>
+                    </div>
+                <?php endif ?>
+            </div>
+    </div>
+    <div class="col neu mt-3 m-2 p-3">
+        <h3 class="m-3 p-4 fw-bold my-color text-center">LEADERBOARD</h1>
+            <div class="col overflow-y-scroll rmv-scroll" style="height: 430px;">
+                <?php if (count($users_data) > 0) : ?>
+                    <?php for ($i = 1; $i < 20; $i++) : ?>
+                        <div class="d-flex flex-row justify-content-between px-3 py-2 p-color neu m-2 rounded border border-dark">
+                            <div class="d-flex flex-row">
+                                <p class="my-0 mx-2"><?= $i ?></p>
+                                <p class="fs-6 fw-semi-bold m-0">Juan Dela Cruz</p>
+                            </div>
+                            <p class="m-0"><?= 2000 - $i ?></p>
+                        </div>
+                    <?php endfor ?>
+                <?php else : ?>
+                    <div class="d-flex flex-row justify-content-between px-3 py-2 p-color neu m-2 rounded border border-dark">
+                        <div class="d-flex flex-row justify-content-center">
+                            <p class="fs-6 fw-semi-bold m-0">No data yet!!</p>
+                        </div>
+                    </div>
+                <?php endif ?>
+            </div>
+    </div>
+</div>
